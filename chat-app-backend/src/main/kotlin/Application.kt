@@ -1,5 +1,6 @@
 package dev.lmorita
 
+import dev.lmorita.plugins.*
 import io.ktor.server.application.*
 
 fun main(args: Array<String>) {
@@ -12,5 +13,5 @@ fun Application.module() {
     configureSerialization()
     configureSecurity()
     configureRouting()
-    configureDatabases()
+    configureDatabases(environment.config)
 }
