@@ -1,0 +1,2 @@
+package dev.lmorita.plugins
+

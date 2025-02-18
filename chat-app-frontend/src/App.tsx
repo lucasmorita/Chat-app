@@ -1,35 +1,44 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Routes, Route } from "react-router";
+import { AuthContext } from "./components/context/AuthContext";
+import Home from "./pages/home/Home";
+import Login from "./pages/login/Login";
+import useAuth from "./hooks/useAuth";
+import './App.css';
+import PrivateRoute from "./components/PrivateRoute";
+import Signup from "./pages/signup/Signup";
+import Room from "./pages/rooms/Room";
+import RoomChat from "./pages/rooms/chat/RoomChat";
 
-function App() {
-  const [count, setCount] = useState(0)
+const App: React.FC = () => {
+    const {
+        authed,
+        username,
+        login,
+        logout,
+    } = useAuth();
+    return (
+        <main>
+            <AuthContext.Provider value={{ authed, username, login, logout }}>
+                <BrowserRouter>
+                    <Routes>
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/signup" element={<Signup />} />
+                        <Route path="/" element={<Home />} />
+                        <Route path="/rooms" element={
+                            <PrivateRoute >
+                                <Room />
+                            </PrivateRoute>
+                        } />
+                        <Route path="/rooms/:roomId" element={
+                            <PrivateRoute >
+                                <RoomChat />
+                            </PrivateRoute>
+                        } />
+                    </Routes>
+                </BrowserRouter>
+            </AuthContext.Provider>
+        </main>
+    );
+};
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
-
-export default App
+export default App;
