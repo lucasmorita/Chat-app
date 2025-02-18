@@ -45,12 +45,14 @@ class RoomRepository {
         }
     }
 
-    fun getRoom(roomId: Int): Room? = RoomEntity.findById(roomId)?.let {
-        Room(
-            id = it.id.value,
-            name = it.name,
-            description = it.description,
-            owner = User(it.owner)
-        )
+    fun getRoom(roomId: Int): Room? = transaction {
+        RoomEntity.findById(roomId)?.let {
+            Room(
+                id = it.id.value,
+                name = it.name,
+                description = it.description,
+                owner = User(it.owner)
+            )
+        }
     }
 }

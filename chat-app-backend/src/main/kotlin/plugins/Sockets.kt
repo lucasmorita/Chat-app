@@ -1,52 +1,49 @@
 package dev.lmorita.plugins
 
-import dev.lmorita.models.MessageResponse
-import dev.lmorita.services.RoomService
+import com.google.gson.Gson
+import dev.lmorita.models.MessageResponseJson
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
-import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.ktor.ext.inject
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration.Companion.seconds
 
 fun Application.configureSockets() {
     install(WebSockets) {
-        pingPeriod = 15.seconds
-        timeout = 2.seconds
+        pingPeriod = 1000.seconds
+        timeout = 15.seconds
         maxFrameSize = Long.MAX_VALUE
         masking = false
     }
-    val roomService by inject<RoomService>()
     routing {
-        val roomSessions = ConcurrentHashMap<Int, MutableSharedFlow<MessageResponse>>()
-        webSocket("/rooms/{id}/chat") { // websocketSession
+        val roomSessions = ConcurrentHashMap<Int, MutableSharedFlow<MessageResponseJson>>()
+        val gson = Gson()
+        webSocket("/rooms/{id}/chat") {
             val id = call.parameters["id"]!!.toInt()
-            transaction {
-                roomService.getRoom(id)
-            } ?: close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "Room does not exist"))
 
             val sessions = roomSessions.computeIfAbsent(id) {
-                MutableSharedFlow()
+                MutableSharedFlow(
+                    extraBufferCapacity = 20000
+                )
             }
-            send("Joined room $id! current connected sessions: ${sessions.subscriptionCount}")
+            log.info("Joined room $id! current connected sessions: ${sessions.subscriptionCount.value}")
             val job = launch {
                 val roomSession = roomSessions[id]!!
                 roomSession.asSharedFlow().collect {
-                    send(it.message)
+                    log.info("send message $it")
+                    send(gson.toJson(it))
                 }
             }
             runCatching {
-                incoming.consumeEach { frame ->
-                    if (frame is Frame.Text) {
-                        val receivedText = frame.readText()
-                        val messageResponse = MessageResponse(receivedText)
-                        roomSessions[id]!!.emit(messageResponse)
-                    }
+                for (frame in incoming) {
+                    frame as? Frame.Text ?: continue
+                    val message = gson.fromJson(frame.readText(), MessageResponseJson::class.java)
+                    log.info("message consumed: $message")
+                    roomSessions[id]!!.emit(message)
                 }
             }.onFailure { exception ->
                 println("WebSocket exception ${exception.localizedMessage}")
@@ -54,6 +51,5 @@ fun Application.configureSockets() {
                 job.cancel()
             }
         }
-
     }
 }

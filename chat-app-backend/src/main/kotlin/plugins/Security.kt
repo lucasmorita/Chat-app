@@ -5,7 +5,6 @@ import dev.lmorita.entities.UserAccountEntity
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.engine.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
@@ -22,18 +21,18 @@ fun Application.configureSecurity() {
             cookie.path = "/"
             cookie.maxAgeInSeconds = 8640
             cookie.extensions["SameSite"] = "lax"
-            cookie.extensions["HttpOnly"] = "true"
-
+            cookie.httpOnly = false
             transform(SessionTransportTransformerMessageAuthentication(secretSignKey))
         }
     }
     authentication {
         session<UserSession>("auth-session") {
             validate { session ->
+                application.log.info("validating session, sessions: $sessions with $session" )
                 sessions.get("user_session").toString() == session.name
             }
             challenge {
-                call.respondRedirect("/login")
+                call.respond(HttpStatusCode.Unauthorized)
             }
         }
         basic(name = "myauth1") {

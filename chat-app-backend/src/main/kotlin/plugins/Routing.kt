@@ -31,13 +31,19 @@ fun Application.configureRouting() {
             call.respond(status = HttpStatusCode.Created, message = "User created")
         }
 
+        post("logout") {
+            val username = call.principal<UserIdPrincipal>()?.name.toString()
+            log.info("logout $username")
+            call.sessions.clear(username)
+            call.respond(HttpStatusCode.OK)
+        }
         authenticate("auth-form") {
             post("/login") {
                 val username = call.principal<UserIdPrincipal>()?.name.toString()
                 log.info("username=$username")
                 call.sessions.set(UserSession(name = username))
                 log.info("sessions=${call.sessions}")
-                call.respondRedirect("/rooms")
+                call.respond(HttpStatusCode.OK)
             }
         }
         authenticate("auth-session") {
@@ -46,6 +52,10 @@ fun Application.configureRouting() {
                     val rooms = roomService.getRooms()
                     log.info("Existing rooms: $rooms")
                     call.respond(rooms)
+                }
+                get("/{id}") {
+                    val room = roomService.getRoom(call.pathParameters["id"]!!.toInt())!!
+                    call.respond(room)
                 }
                 post {
                     val room = call.receive<RoomRequest>()
