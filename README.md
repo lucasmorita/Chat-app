@@ -13,6 +13,7 @@ For the backend:
 - Planning to use Cassandra for storing messages
 
 ## Todo:
+- [ ] Add tests
 - [ ] Store messages
 - [ ] Support user preferences
 - [ ] Change password
