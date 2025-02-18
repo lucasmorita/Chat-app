@@ -7,9 +7,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         username,
         login,
         logout,
+        signup,
     } = useAuth();
     return (
-        <AuthContext.Provider value={{ authed, username, login, logout }}>
+        <AuthContext.Provider value={{ authed, username, login, logout, signup }}>
             {children}
         </AuthContext.Provider>
     );

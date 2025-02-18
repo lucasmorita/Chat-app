@@ -23,7 +23,7 @@ const RoomChat: React.FC = () => {
     }
     return (
         <div>
-            {roomId && <Chat roomId={roomId} />}
+            {roomId && <Chat roomId={roomId} roomName={room.name} />}
         </div>
     );
 };

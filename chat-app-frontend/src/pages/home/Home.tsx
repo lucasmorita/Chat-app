@@ -13,8 +13,8 @@ const Home: React.FC = () => {
           <button onClick={() => navigate("/rooms")}>See the open rooms</button>
         </p>: (
           <div className="flex flex-col items-center justify-center">
-            <a href="/login" className="my-2">Login</a>
-            <a href="/signup" className="my-2">Signup</a>
+            <button onClick={() => navigate("/login")} className="btn btn-primary my-2">Login</button>
+            <button onClick={() => navigate("/signup")} className="btn btn-accent my-2">Signup</button>
           </div>
         )
       }

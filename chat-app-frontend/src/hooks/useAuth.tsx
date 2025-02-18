@@ -1,14 +1,9 @@
 import { useState } from "react";
 import { User } from "../types/User";
+import { AuthContextType } from "../types/AuthContextType";
+import { SignupResponseType } from "../types/SignupResponseType";
 
-type Auth = {
-    username: string;
-    authed: boolean;
-    login: (user: User) => Promise<boolean>;
-    logout: () => void;
-};
-
-const useAuth = (): Auth => {
+const useAuth = (): AuthContextType => {
     const [authed, setAuthed] = useState(false);
     const [username, setUsername] = useState<string>("");
 
@@ -47,8 +42,29 @@ const useAuth = (): Auth => {
         });
         setUsername("");
     };
+
+    const signup = async (user: User): Promise<SignupResponseType> => {
+        const res = await fetch(`${import.meta.env.VITE_SERVER_HOST}/users`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(user),
+        });
+        console.log("signup response:", res);
+        if (!res.ok) {
+            setAuthed(false);
+            return {
+                success: false,
+                reason: `${res.text}`,
+                status: res.status
+            }
+        }
+        setAuthed(true);
+        setUsername(user.username);
+        
+        return { success: true, status: res.status };
+    }
     
-    return { username, authed, login, logout };
+    return { username, authed, login, logout, signup };
 };
 
 export default useAuth;
