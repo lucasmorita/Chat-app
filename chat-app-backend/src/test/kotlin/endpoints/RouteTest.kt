@@ -1,4 +1,4 @@
-package dev.lmorita
+package dev.lmorita.endpoints
 
 import dev.lmorita.db.H2ConnFactory
 import dev.lmorita.db.RoomTable
