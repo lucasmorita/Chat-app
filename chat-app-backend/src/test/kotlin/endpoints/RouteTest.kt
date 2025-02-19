@@ -221,6 +221,38 @@ class RouteTest : KoinTest {
         }
     }
 
+    @Test
+    fun `should logout when user is authed`() = baseTestApplication {
+        val client = createClient {
+            install(HttpCookies)
+            install(ContentNegotiation) {
+                json()
+            }
+        }
+        client.post("/login") {
+            contentType(ContentType.Application.FormUrlEncoded)
+            setBody("username=MockUser&password=123")
+        }
+
+        client.delete("/logout").run {
+            assertEquals(HttpStatusCode.OK, this.status)
+        }
+    }
+
+    @Test
+    fun `should get 401 if user is not authed when logging out`() = baseTestApplication {
+        val client = createClient {
+            install(HttpCookies)
+            install(ContentNegotiation) {
+                json()
+            }
+        }
+
+        client.delete("/logout").run {
+            assertEquals(HttpStatusCode.Unauthorized, this.status)
+        }
+    }
+
     private fun baseTestApplication(block: suspend ApplicationTestBuilder.() -> Unit) {
         testApplication {
             application {
