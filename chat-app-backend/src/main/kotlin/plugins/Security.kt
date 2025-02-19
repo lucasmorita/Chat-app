@@ -21,15 +21,16 @@ fun Application.configureSecurity() {
             cookie.path = "/"
             cookie.maxAgeInSeconds = 8640
             cookie.extensions["SameSite"] = "lax"
-            cookie.httpOnly = false
+            cookie.httpOnly = true
             transform(SessionTransportTransformerMessageAuthentication(secretSignKey))
         }
     }
     authentication {
         session<UserSession>("auth-session") {
             validate { session ->
-                println("validating session, sessions: $sessions with $session")
-                sessions.get("user_session").toString() == session.name
+                sessions.get<UserSession>()?.takeIf {
+                    it.name == session.name
+                }?.let { session }
             }
             challenge {
                 call.respond(HttpStatusCode.Unauthorized, "$it")

@@ -31,18 +31,10 @@ fun Application.configureRouting() {
             call.respond(status = HttpStatusCode.Created, message = "User created")
         }
 
-        delete("/logout") {
-            val username = call.principal<UserIdPrincipal>()?.name.toString()
-            log.info("logout $username")
-            call.sessions.clear(username)
-            call.respond(HttpStatusCode.OK)
-        }
         authenticate("auth-form") {
             post("/login") {
                 val username = call.principal<UserIdPrincipal>()?.name.toString()
-                log.info("username=$username")
                 call.sessions.set(UserSession(name = username))
-                log.info("sessions=${call.sessions}")
                 call.respond(HttpStatusCode.OK)
             }
         }
@@ -64,6 +56,11 @@ fun Application.configureRouting() {
                     val createdRoom = roomService.createRoom(userSession!!.name, room)
                     call.respond(HttpStatusCode.Created, "Room created with id ${createdRoom.id}")
                 }
+            }
+            delete("/logout") {
+                application.log.info("current_session=${call.sessions}")
+                call.sessions.clear<UserSession>()
+                call.respond(HttpStatusCode.OK)
             }
         }
     }
