@@ -14,6 +14,7 @@ For the backend:
 
 ## Todo:
 - [ ] Add tests
+- [ ] Change Cookie session storage from In memory to a database
 - [ ] Store messages
 - [ ] Support user preferences
 - [ ] Change password

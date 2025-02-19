@@ -6,12 +6,13 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
-import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
 import io.ktor.util.*
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
+import kotlin.collections.firstOrNull
+import kotlin.collections.set
 
 
 fun Application.configureSecurity() {
@@ -28,23 +29,14 @@ fun Application.configureSecurity() {
     authentication {
         session<UserSession>("auth-session") {
             validate { session ->
-                application.log.info("validating session, sessions: $sessions with $session" )
+                println("validating session, sessions: $sessions with $session")
                 sessions.get("user_session").toString() == session.name
             }
             challenge {
-                call.respond(HttpStatusCode.Unauthorized)
+                call.respond(HttpStatusCode.Unauthorized, "$it")
             }
         }
-        basic(name = "myauth1") {
-            realm = "Ktor Server"
-            validate { credentials ->
-                if (credentials.name == credentials.password) {
-                    UserIdPrincipal(credentials.name)
-                } else {
-                    null
-                }
-            }
-        }
+
         form(name = "auth-form") {
             userParamName = "username"
             passwordParamName = "password"
@@ -66,25 +58,6 @@ fun Application.configureSecurity() {
                 call.respond(HttpStatusCode.Unauthorized)
             }
         }
-    }
-    routing {
-//        get("/session/increment") {
-//            val session = call.sessions.get<UserSession>() ?: UserSession()
-//            call.sessions.set(session.copy(count = session.count + 1))
-//            call.respondText("Counter is ${session.count}. Refresh to increment.")
-//        }
-        authenticate("myauth1") {
-            get("/protected/route/basic") {
-                val principal = call.principal<UserIdPrincipal>()!!
-                call.respondText("Hello ${principal.name}")
-            }
-        }
-//        authenticate("myauth2") {
-//            get("/protected/route/form") {
-//                val principal = call.principal<UserIdPrincipal>()!!
-//                call.respondText("Hello ${principal.name}")
-//            }
-//        }
     }
 }
 @Serializable

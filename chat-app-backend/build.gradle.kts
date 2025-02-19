@@ -25,6 +25,7 @@ dependencies {
     implementation(libs.ktor.server.websockets)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.server.content.negotiation)
+    implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.server.sessions)
     implementation(libs.ktor.server.auth)
     implementation(libs.ktor.server.auth.jwt)
@@ -40,5 +41,8 @@ dependencies {
     implementation(libs.logback.classic)
     implementation(libs.ktor.server.config.yaml)
     testImplementation(libs.ktor.server.test.host)
+    testImplementation(libs.koin.test)
     testImplementation(libs.kotlin.test.junit)
+    testImplementation(libs.h2)
+    testImplementation(libs.hikari)
 }

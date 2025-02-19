@@ -4,6 +4,9 @@ import dev.lmorita.models.user.User
 import kotlinx.serialization.Serializable
 
 @Serializable
+data class RoomList(val rooms: List<Room>)
+
+@Serializable
 data class Room(
     val id: Int,
     val name: String,
