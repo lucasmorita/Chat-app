@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router";
 import useRoom from "../../../hooks/useRoom";
-import { RoomDto } from "../../../types/RoomDto";
+import { RoomDto } from "../../../types/RoomSchema";
 import Chat from "./Chat";
 import { useContext } from "react";
 import { AuthContext } from "../../../components/context/AuthContext";

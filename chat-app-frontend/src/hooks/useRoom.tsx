@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
-import { RoomDto } from '../types/RoomDto';
+import { RoomItemDto } from '../types/RoomSchema';
 
 interface UseRoomReturnType {
-    room: RoomDto | null;
+    room: RoomItemDto | null;
     loading: boolean;
     error: string | null;
   }
 
 const useRoom = (roomId: string): UseRoomReturnType => {
-    const [room, setRoom] = useState<RoomDto | null>(null);
+    const [room, setRoom] = useState<RoomItemDto | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -22,7 +22,7 @@ const useRoom = (roomId: string): UseRoomReturnType => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch room');
                 }
-                const data: RoomDto = await response.json();
+                const data: RoomItemDto = await response.json();
                 setRoom(data);
             } catch (err) {
                 if (err instanceof Error) {

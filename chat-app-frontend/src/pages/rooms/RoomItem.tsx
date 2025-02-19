@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router";
-import { RoomDto } from "../../types/RoomDto";
+import { RoomDto } from "../../types/RoomSchema";
 
 const RoomItem = ({ room }: { room: RoomDto }) => {
     const navigate = useNavigate();
