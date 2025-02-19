@@ -1,6 +1,7 @@
 package dev.lmorita.db
 
 import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.kotlin.datetime.CurrentTimestamp
@@ -18,9 +19,10 @@ object RoomTable : IntIdTable(columnName = "room_id") {
     val owner: Column<EntityID<Int>> = reference("owner", UserAccountTable.id)
 }
 
-object SessionTable : IntIdTable("chat_session") {
-    val sessionId = text("session_id")
+object SessionTable : IdTable<String>("chat_session") {
+    override val id: Column<EntityID<String>> = text("session_id").entityId()
     val sessionValue = text("session_value")
     val createdAt = timestamp("created_at").defaultExpression(CurrentTimestamp)
     val updatedAt = timestamp("updated_at").defaultExpression(CurrentTimestamp)
+    override val primaryKey: PrimaryKey = PrimaryKey(id)
 }
