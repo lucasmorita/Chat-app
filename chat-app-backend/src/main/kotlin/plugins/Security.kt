@@ -11,14 +11,13 @@ import io.ktor.util.*
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
-import kotlin.collections.firstOrNull
 import kotlin.collections.set
 
 
 fun Application.configureSecurity() {
     install(Sessions) {
         val secretSignKey = hex("6819b57a326945c1968f45236589")
-        cookie<UserSession>("user_session", SessionStorageMemory()) {
+        cookie<UserSession>("user_session", DatabaseSessionStorage()) {
             cookie.path = "/"
             cookie.maxAgeInSeconds = 8640
             cookie.extensions["SameSite"] = "lax"
@@ -60,5 +59,6 @@ fun Application.configureSecurity() {
         }
     }
 }
+
 @Serializable
 data class UserSession(val name: String)

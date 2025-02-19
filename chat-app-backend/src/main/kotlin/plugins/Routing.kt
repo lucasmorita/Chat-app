@@ -31,7 +31,7 @@ fun Application.configureRouting() {
             call.respond(status = HttpStatusCode.Created, message = "User created")
         }
 
-        post("/logout") {
+        delete("/logout") {
             val username = call.principal<UserIdPrincipal>()?.name.toString()
             log.info("logout $username")
             call.sessions.clear(username)

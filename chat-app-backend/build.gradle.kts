@@ -20,6 +20,7 @@ repositories {
 }
 
 dependencies {
+    implementation(libs.kotlinx.datetime)
     implementation(libs.koin.ktor)
     implementation(libs.koin.logger.slf4j)
     implementation(libs.ktor.client.content.negotiation)
@@ -38,6 +39,7 @@ dependencies {
     implementation(libs.exposed.jdbc)
     implementation(libs.exposed.dao)
     implementation(libs.exposed.crypt)
+    implementation(libs.exposed.kotlin.datetime)
     implementation(libs.postgres)
     implementation(libs.jbcrypt)
     implementation(libs.logback.classic)
@@ -47,8 +49,4 @@ dependencies {
     testImplementation(libs.kotlin.test.junit)
     testImplementation(libs.h2)
     testImplementation(libs.hikari)
-}
-
-tasks.test {
-    useJUnitPlatform()
 }

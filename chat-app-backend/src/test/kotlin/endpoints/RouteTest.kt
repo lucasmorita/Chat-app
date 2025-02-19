@@ -2,6 +2,7 @@ package dev.lmorita.endpoints
 
 import dev.lmorita.db.H2ConnFactory
 import dev.lmorita.db.RoomTable
+import dev.lmorita.db.SessionTable
 import dev.lmorita.db.UserAccountTable
 import dev.lmorita.entities.RoomEntity
 import dev.lmorita.entities.UserAccountEntity
@@ -42,6 +43,7 @@ class RouteTest : KoinTest {
         transaction(database) {
             SchemaUtils.create(UserAccountTable)
             SchemaUtils.create(RoomTable)
+            SchemaUtils.create(SessionTable)
             val userAccount = UserAccountEntity.new {
                 username = "MockUser"
                 password = BCrypt.hashpw("123", BCrypt.gensalt())
@@ -195,6 +197,27 @@ class RouteTest : KoinTest {
             setBody(UserAccount("MockUser", "123"))
         }.run {
             assertEquals(HttpStatusCode.Conflict, this.status)
+        }
+    }
+
+    @Test
+    fun `should create new room`() = baseTestApplication {
+        val client = createClient {
+            install(HttpCookies)
+            install(ContentNegotiation) {
+                json()
+            }
+        }
+        client.post("/login") {
+            contentType(ContentType.Application.FormUrlEncoded)
+            setBody("username=MockUser&password=123")
+        }
+
+        client.post("/rooms") {
+            contentType(ContentType.Application.Json)
+            setBody(RoomRequest("Test Room"))
+        }.run {
+            assertEquals(HttpStatusCode.Created, this.status)
         }
     }
 

@@ -7,9 +7,9 @@ import io.ktor.client.plugins.websocket.*
 import io.ktor.server.testing.*
 import io.ktor.websocket.*
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
 import org.koin.test.KoinTest
 import java.time.Instant
+import kotlin.test.Test
 
 class WebSocketTest : KoinTest {
 

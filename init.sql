@@ -9,6 +9,13 @@ CREATE TABLE IF NOT EXISTS room (
     name VARCHAR(100) NOT NULL UNIQUE,
     users_count INTEGER NOT NULL DEFAULT 0,
     description VARCHAR(100),
-    owner VARCHAR(100) REFERENCES user_account(username)
+    owner VARCHAR(100) REFERENCES user_account
 );
 
+CREATE TABLE IF NOT EXISTS chat_session (
+    id SERIAL PRIMARY KEY,
+    session_id TEXT NOT NULL,
+    session_value TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

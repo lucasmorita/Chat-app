@@ -12,9 +12,11 @@ For the backend:
 - PostgreSQL
 - Planning to use Cassandra for storing messages
 
-## Todo:
+## To-dos:
 - [x] Add tests
-- [ ] Change Cookie session storage from In memory to a database
+- [x] Change Cookie session storage from In memory to a database
+- [ ] Add button for creating a room
+- [ ] Cache fetch rooms
 - [ ] Store messages
 - [ ] Support user preferences
 - [ ] Change password
