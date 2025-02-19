@@ -17,6 +17,7 @@ For the backend:
 - [x] Change Cookie session storage from In memory to a database
 - [x] Add button for creating a room
 - [x] Alter chat session table to use session id as primary key
+- [x] Fix logout endpoint
 - [ ] Fix refreshing page losing cookie user_session
 - [ ] Cache fetch rooms
 - [ ] Store messages in Cassandra
