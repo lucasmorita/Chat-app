@@ -13,7 +13,7 @@ For the backend:
 - Planning to use Cassandra for storing messages
 
 ## Todo:
-- [ ] Add tests
+- [x] Add tests
 - [ ] Change Cookie session storage from In memory to a database
 - [ ] Store messages
 - [ ] Support user preferences
