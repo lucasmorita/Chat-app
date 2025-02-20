@@ -1,4 +1,4 @@
-package dev.lmorita.endpoints
+package endpoints
 
 import dev.lmorita.db.H2ConnFactory
 import dev.lmorita.db.RoomTable
@@ -11,25 +11,18 @@ import dev.lmorita.models.room.RoomList
 import dev.lmorita.models.room.RoomRequest
 import dev.lmorita.models.user.User
 import dev.lmorita.models.user.UserAccount
-import dev.lmorita.plugins.configureRouting
-import dev.lmorita.plugins.configureSecurity
-import dev.lmorita.plugins.configureSerialization
-import dev.lmorita.repository.RoomRepository
-import dev.lmorita.repository.UserRepository
-import dev.lmorita.services.RoomService
-import dev.lmorita.services.UserService
+import fixtures.LOGIN_URL
+import fixtures.ROOMS_URL
+import fixtures.baseTestApplication
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.cookies.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import io.ktor.server.testing.*
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.dsl.module
-import org.koin.ktor.plugin.koin
 import org.koin.test.KoinTest
 import org.mindrot.jbcrypt.BCrypt
 import kotlin.test.Test
@@ -72,13 +65,13 @@ class RouteTest : KoinTest {
                 json()
             }
         }
-        client.post("/login") {
+        client.post(LOGIN_URL) {
             contentType(ContentType.Application.FormUrlEncoded)
             setBody("username=MockUser&password=123")
         }.also {
             assertEquals(HttpStatusCode.OK, it.status)
         }
-        client.get("/rooms").run {
+        client.get(ROOMS_URL).run {
             assertEquals(HttpStatusCode.OK, status)
             val rooms = body<RoomList>()
             assertEquals(
@@ -103,7 +96,7 @@ class RouteTest : KoinTest {
                 json()
             }
         }
-        client.get("/rooms/1").run {
+        client.get("$ROOMS_URL/1").run {
             assertEquals(HttpStatusCode.Unauthorized, this.status)
         }
     }
@@ -116,13 +109,13 @@ class RouteTest : KoinTest {
                 json()
             }
         }
-        client.post("/login") {
+        client.post(LOGIN_URL) {
             contentType(ContentType.Application.FormUrlEncoded)
             setBody("username=MockUser&password=123")
         }.also {
             assertEquals(HttpStatusCode.OK, it.status)
         }
-        client.get("/rooms/1").run {
+        client.get("$ROOMS_URL/1").run {
             assertEquals(HttpStatusCode.OK, this.status)
         }
     }
@@ -135,13 +128,13 @@ class RouteTest : KoinTest {
                 json()
             }
         }
-        client.post("/login") {
+        client.post(LOGIN_URL) {
             contentType(ContentType.Application.FormUrlEncoded)
             setBody("username=MockUser&password=123")
         }.also {
             assertEquals(HttpStatusCode.OK, it.status)
         }
-        client.post("/rooms") {
+        client.post(ROOMS_URL) {
             contentType(ContentType.Application.Json)
             setBody(RoomRequest("newroom", description = "brand new description"))
         }.run {
@@ -158,7 +151,7 @@ class RouteTest : KoinTest {
             }
         }
 
-        client.post("/rooms") {
+        client.post(ROOMS_URL) {
             contentType(ContentType.Application.Json)
             setBody(RoomRequest("newroom", description = "brand new description"))
         }.run {
@@ -166,22 +159,7 @@ class RouteTest : KoinTest {
         }
     }
 
-    @Test
-    fun `should not login if credentials are wrong`() = baseTestApplication {
-        val client = createClient {
-            install(HttpCookies)
-            install(ContentNegotiation) {
-                json()
-            }
-        }
 
-        client.post("/login") {
-            contentType(ContentType.Application.FormUrlEncoded)
-            setBody("username=MockUser&password=wrong")
-        }.run {
-            assertEquals(HttpStatusCode.Unauthorized, this.status)
-        }
-    }
 
     @Test
     fun `should conflict when username already exists`() = baseTestApplication {
@@ -208,7 +186,7 @@ class RouteTest : KoinTest {
                 json()
             }
         }
-        client.post("/login") {
+        client.post(LOGIN_URL) {
             contentType(ContentType.Application.FormUrlEncoded)
             setBody("username=MockUser&password=123")
         }
@@ -218,57 +196,6 @@ class RouteTest : KoinTest {
             setBody(RoomRequest("Test Room"))
         }.run {
             assertEquals(HttpStatusCode.Created, this.status)
-        }
-    }
-
-    @Test
-    fun `should logout when user is authed`() = baseTestApplication {
-        val client = createClient {
-            install(HttpCookies)
-            install(ContentNegotiation) {
-                json()
-            }
-        }
-        client.post("/login") {
-            contentType(ContentType.Application.FormUrlEncoded)
-            setBody("username=MockUser&password=123")
-        }
-
-        client.delete("/logout").run {
-            assertEquals(HttpStatusCode.OK, this.status)
-        }
-    }
-
-    @Test
-    fun `should get 401 if user is not authed when logging out`() = baseTestApplication {
-        val client = createClient {
-            install(HttpCookies)
-            install(ContentNegotiation) {
-                json()
-            }
-        }
-
-        client.delete("/logout").run {
-            assertEquals(HttpStatusCode.Unauthorized, this.status)
-        }
-    }
-
-    private fun baseTestApplication(block: suspend ApplicationTestBuilder.() -> Unit) {
-        testApplication {
-            application {
-                koin {
-                    modules(module {
-                        single { RoomRepository() }
-                        single { RoomService(get()) }
-                        single { UserRepository() }
-                        single { UserService(get()) }
-                    })
-                }
-                configureSecurity()
-                configureRouting()
-                configureSerialization()
-            }
-            block()
         }
     }
 

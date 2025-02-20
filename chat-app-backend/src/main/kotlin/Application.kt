@@ -1,6 +1,8 @@
 package dev.lmorita
 
 import dev.lmorita.plugins.*
+import dev.lmorita.plugins.routes.auth.configureAuthRouting
+import dev.lmorita.plugins.routes.configureRouting
 import io.ktor.server.application.*
 
 fun main(args: Array<String>) {
@@ -13,6 +15,7 @@ fun Application.module() {
     configureSerialization()
     configureSecurity()
     configureRouting()
+    configureAuthRouting()
     configureDatabases(environment.config)
     configureCORS()
 }

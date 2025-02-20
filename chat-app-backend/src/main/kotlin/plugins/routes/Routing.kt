@@ -1,7 +1,8 @@
-package dev.lmorita.plugins
+package dev.lmorita.plugins.routes
 
 import dev.lmorita.models.room.RoomRequest
 import dev.lmorita.models.user.UserAccount
+import dev.lmorita.plugins.UserSession
 import dev.lmorita.services.RoomService
 import dev.lmorita.services.UserService
 import io.ktor.http.*
@@ -17,27 +18,18 @@ fun Application.configureRouting() {
     val roomService by inject<RoomService>()
     val userService by inject<UserService>()
     routing {
-        get("/") {
-            call.respondText("Hello World!")
-        }
         post("/users") {
             val userAccount = call.receive<UserAccount>()
 
             if (!userService.isNewUser(userAccount)) {
-                return@post call.respond(status = HttpStatusCode.Conflict, "Username already taken")
+                call.respond(status = HttpStatusCode.Conflict, "Username already taken")
+                return@post
             }
             val createdUser = userService.createUser(userAccount)
             log.info("created user: $createdUser")
             call.respond(status = HttpStatusCode.Created, message = "User created")
         }
 
-        authenticate("auth-form") {
-            post("/login") {
-                val username = call.principal<UserIdPrincipal>()?.name.toString()
-                call.sessions.set(UserSession(name = username))
-                call.respond(HttpStatusCode.OK)
-            }
-        }
         authenticate("auth-session") {
             route("/rooms") {
                 get {
@@ -56,11 +48,6 @@ fun Application.configureRouting() {
                     val createdRoom = roomService.createRoom(userSession!!.name, room)
                     call.respond(HttpStatusCode.Created, "Room created with id ${createdRoom.id}")
                 }
-            }
-            delete("/logout") {
-                application.log.info("current_session=${call.sessions}")
-                call.sessions.clear<UserSession>()
-                call.respond(HttpStatusCode.OK)
             }
         }
     }
