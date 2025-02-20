@@ -1,5 +1,6 @@
 package dev.lmorita.plugins
 
+import dev.lmorita.repository.ChatMessageRepository
 import dev.lmorita.repository.RoomRepository
 import dev.lmorita.repository.UserRepository
 import dev.lmorita.services.RoomService
@@ -14,6 +15,7 @@ fun Application.configureFrameworks() {
     install(Koin) {
         slf4jLogger()
         modules(module {
+            singleOf(::ChatMessageRepository)
             singleOf(::RoomRepository)
             singleOf(::RoomService)
             singleOf(::UserRepository)

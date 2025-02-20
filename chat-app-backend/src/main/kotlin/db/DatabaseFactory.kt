@@ -23,5 +23,4 @@ class PostgresConnFactory(
             password = password
         )
     }
-
 }

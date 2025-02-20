@@ -2,6 +2,7 @@ package dev.lmorita.plugins
 
 import com.google.gson.Gson
 import dev.lmorita.models.ChatMessage
+import dev.lmorita.repository.ChatMessageRepository
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
@@ -9,6 +10,7 @@ import io.ktor.websocket.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import org.koin.ktor.ext.inject
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration.Companion.seconds
 
@@ -19,6 +21,7 @@ fun Application.configureSockets() {
         maxFrameSize = Long.MAX_VALUE
         masking = false
     }
+    val chatMessageRepository by inject<ChatMessageRepository>()
     routing {
         val roomSessions = ConcurrentHashMap<Int, MutableSharedFlow<ChatMessage>>()
         val gson = Gson()
@@ -41,7 +44,8 @@ fun Application.configureSockets() {
             runCatching {
                 for (frame in incoming) {
                     frame as? Frame.Text ?: continue
-                    val message = gson.fromJson(frame.readText(), ChatMessage::class.java)
+                    val message: ChatMessage = gson.fromJson(frame.readText(), ChatMessage::class.java)
+                    chatMessageRepository.saveMessage(message)
                     log.info("message consumed: $message")
                     roomSessions[id]!!.emit(message)
                 }
