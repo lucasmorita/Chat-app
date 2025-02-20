@@ -1,14 +1,16 @@
+import { useNavigate } from "react-router";
+import { useAuth } from "./context/AuthContext";
+
 const LogoutButton: React.FC = () => {
+    const navigate = useNavigate();
+    const { logout } = useAuth();
+    
     const handleClick = () => {
-        fetch('http://localhost:8080/logout', {
-            method: 'POST',
-            credentials: 'include'
-        }).then(() => {
-            window.location.href = '/';
-        });
+        logout();
+        navigate('/');
     };
     return (
-        <button onClick={handleClick} className="logout-button">Logout</button>
+        <button onClick={() => handleClick()} className="logout-button">Logout</button>
     );
 };
 

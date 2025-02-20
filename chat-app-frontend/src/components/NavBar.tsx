@@ -1,17 +1,9 @@
-import { useContext } from "react";
-import { AuthContext } from "./context/AuthContext";
+import { useAuth } from "./context/AuthContext";
 
 const NavBar: React.FC = () => {
-    const { authed } = useContext(AuthContext);
-    // const location = useLocation();
-    const handleLogout = () => {
-        fetch(`${import.meta.env.VITE_SERVER_HOST}/logout`, {
-            credentials: 'include'
-        }).then(res => {
-            console.log("logout", res);
-            window.location.href = "/"
-        });
-    }
+    const { authed, loading, logout } = useAuth();
+    
+    const handleLogout = () => { logout(); }
     return (
         <header>
             <nav>
@@ -20,7 +12,7 @@ const NavBar: React.FC = () => {
                         <li><a href="/">Home</a></li>
                         <li><a href="/rooms">Rooms</a></li>
                         {
-                            !authed ? (
+                            (!authed && !loading) ? (
                                 <div className="flex">
                                     <li><a href="/signup">Signup</a></li>
                                     <li><a href="/login">Login</a></li>
@@ -47,13 +39,6 @@ const NavBar: React.FC = () => {
                                             <li><a className="text-neutral" onClick={() => handleLogout()}>Logout</a></li>
                                         </ul>
                                     </div>
-                                    {/* <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
-                                        <div className="w-10 rounded-full">
-                                            <img
-                                                alt="Tailwind CSS Navbar component"
-                                                src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
-                                        </div>
-                                    </div> */}
                                 </li>
                             </>
                             )

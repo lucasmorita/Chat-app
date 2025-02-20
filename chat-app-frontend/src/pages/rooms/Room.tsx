@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { RoomItemDto, RoomsResponseSchema } from '../../types/RoomSchema';
 import RoomItem from "./RoomItem";
 import CreateRoomButton from "../../components/CreateRoomButton";
+import Loading from "../../components/Loading";
 
 const Room: React.FC = () => {
     const [rooms, setRooms] = useState<RoomItemDto[]>([]);
@@ -20,9 +21,10 @@ const Room: React.FC = () => {
                     console.error('Failed to parse the response data', parsedData.error);
                     return;
                 }
-                console.log("current rooms", rooms);
                 setRooms(prev => prev.concat(parsedData.data.rooms));
-                setLoading(false);
+                setTimeout(() => {
+                    setLoading(false);
+                }, 2000);
             })
             .catch(error => {
                 setError('Failed to fetch the rooms');
@@ -37,7 +39,7 @@ const Room: React.FC = () => {
             </div>
             {
                 loading
-                    ? <div className="flex h-full justify-center"><span className="loading loading-ring loading-lg"></span></div>
+                    ? <Loading />
                     : rooms.length === 0
                         ? <div className="h-full flex justify-center items-center"><p className="text-center">No rooms available</p></div>
                         : <div className="grid justify-center grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
